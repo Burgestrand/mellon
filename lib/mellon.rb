@@ -7,6 +7,7 @@ module Mellon
 
   class << self
     def sh(*command)
+      $stderr.puts command.join(" ") if $VERBOSE
       output, stderr, status = Open3.capture3(*command)
 
       unless status.success?
@@ -16,7 +17,7 @@ module Mellon
         stderr = "<no output>" if stderr.empty?
         error_string << "  " << stderr.chomp
 
-        $stderr.puts "[ERROR] #{message}"
+        $stderr.puts "[ERROR] #{error_string}"
         exit false
       end
 
