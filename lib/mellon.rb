@@ -2,6 +2,8 @@ require "mellon/version"
 require "mellon/keychains"
 
 module Mellon
+  KEYCHAIN_REGXP = /"(.+)"/
+
   class << self
     def keychain(name)
       keychain = keychains.find { |keychain| keychain === name }
@@ -13,8 +15,12 @@ module Mellon
       keychain
     end
 
+    def default_keychain
+      Keychain.new(sh("security", "default-keychain")[KEYCHAIN_REGXP, 1])
+    end
+
     def keychains
-      sh("security", "list-keychains").scan(/"(.+)"/).map do |(keychain)|
+      sh("security", "list-keychains").scan(KEYCHAIN_REGXP).map do |(keychain)|
         Keychain.new(keychain)
       end
     end
