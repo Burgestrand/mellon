@@ -74,14 +74,13 @@ module Mellon
     # Read a key from the keychain.
     #
     # @param [String] key
-    # @return [Array<Hash, String>] tuple of entry info, and text contents
-    # @raise [KeyError] if key was not found
+    # @return [Array<Hash, String>, nil] tuple of entry info, and text contents, or nil if key does not exist
     def read(key)
       command "find-generic-password", "-g", "-l", key do |info, password_info|
         [parse_info(info), parse_password(password_info)]
       end
     rescue CommandError => e
-      raise KeyError, "key not found: #{key}"
+      nil
     end
 
     # Write data with given key to the keychain.
