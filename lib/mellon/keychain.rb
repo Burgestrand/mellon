@@ -36,6 +36,18 @@ module Mellon
     attr_reader :path
     attr_reader :name
 
+    def open
+      command "unlock-keychain"
+      yield
+    ensure
+      command "lock-keychain"
+    end
 
+    private
+
+    def command(*command, &block)
+      command += [path]
+      Mellon.security *command, &block
+    end
   end
 end
