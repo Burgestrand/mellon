@@ -1,6 +1,8 @@
 require "plist"
+require "open3"
 
 module Mellon
+  # Keychain provides simple methods for reading and storing keychain entries.
   class Keychain
     DEFAULT_OPTIONS = { type: :note }
     TYPES = {
@@ -59,17 +61,29 @@ module Mellon
     # @return [String] keychain name (without extension)
     attr_reader :name
 
-    # Open the keychain for the duration of the block, and automatically
-    # close it once block has finished executing.
-    #
-    # @yield [keychain]
-    # @yieldparam keychain [Keychain]
-    def open
-      command "unlock-keychain"
-      yield self
-    ensure
-      command "lock-keychain"
+    # @param [String] key
+    # @return [String, nil] contents of entry at key, or nil if not set
+    def [](key)
+      _, data = read(key)
+      data
     end
+
+    # Write data to entry key, or updating existing one if it exists.
+    #
+    # @param [String] key
+    # @param [String] data
+    def []=(key, data)
+      info, _ = read(key)
+      info ||= {}
+
+      if data
+        write(key, data, info)
+      else
+        delete(key, info)
+      end
+    end
+
+    private
 
     # Read a key from the keychain.
     #
@@ -77,7 +91,7 @@ module Mellon
     # @return [Array<Hash, String>, nil] tuple of entry info, and text contents, or nil if key does not exist
     def read(key)
       command "find-generic-password", "-g", "-l", key do |info, password_info|
-        [parse_info(info), parse_password(password_info)]
+        [parse_info(info), parse_contents(password_info)]
       end
     rescue CommandError => e
       nil
@@ -112,13 +126,38 @@ module Mellon
         "-w", data
     end
 
-    private
+    # Delete the entry matching key and options.
+    #
+    # @param [String] key
+    # @param [Hash] options
+    # @option (see #write)
+    def delete(key, options = {})
+      info = build_info(key, options)
 
+      command "delete-generic-password",
+        "-a", info[:account_name],
+        "-s", info[:service_name],
+        "-l", info[:label],
+        "-D", info[:kind],
+        "-C", info[:type]
+    end
+
+    # Execute a command with the context of this keychain.
+    #
+    # @param [Array<String>] command
+    # @see Mellons.h
     def command(*command, &block)
       command += [path]
       Mellon.security *command, &block
     end
 
+    private
+
+    # Build an info hash used for #write and #delete.
+    #
+    # @param [String] key
+    # @param [Hash] options
+    # @return [Hash]
     def build_info(key, options = {})
       options = DEFAULT_OPTIONS.merge(options)
 
@@ -136,6 +175,10 @@ module Mellon
       }
     end
 
+    # Parse entry information.
+    #
+    # @param [String] info
+    # @return [Hash]
     def parse_info(info)
       extract = lambda { |key| info[/#{key}.+=(?:<NULL>|[^"]*"(.+)")/, 1].to_s }
       {
@@ -147,7 +190,11 @@ module Mellon
       }
     end
 
-    def parse_password(password_info)
+    # Parse entry contents.
+    #
+    # @param [String]
+    # @return [String]
+    def parse_contents(password_info)
       unpacked = password_info[/password: 0x([a-f0-9]+)/i, 1]
 
       password = if unpacked
