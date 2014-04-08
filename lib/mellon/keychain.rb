@@ -48,7 +48,7 @@ module Mellon
 
     def open
       command "unlock-keychain"
-      yield
+      yield self
     ensure
       command "lock-keychain"
     end
