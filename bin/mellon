@@ -41,7 +41,7 @@ Slop.parse(strict: true, help: true) do
       keychain ||= Mellon::Keychain.search(name)
 
       if keychain
-        puts keychain[name]
+        print keychain[name]
       else
         $stderr.puts "key not found: #{name}"
         exit false
