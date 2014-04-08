@@ -12,7 +12,10 @@ module Mellon
 
     def sh(*command)
       $stderr.puts command.join(" ") if $VERBOSE
-      output, stderr, status = Open3.capture3(*command)
+      stdout, stderr, status = Open3.capture3(*command)
+
+      stdout.chomp!
+      stderr.chomp!
 
       unless status.success?
         error_string = Shellwords.join(command)
@@ -24,7 +27,11 @@ module Mellon
         abort "[ERROR] #{error_string}"
       end
 
-      output.chomp
+      if block_given?
+        yield [stdout, stderr]
+      else
+        stdout
+      end
     end
   end
 end
