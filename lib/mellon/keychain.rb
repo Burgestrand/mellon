@@ -17,12 +17,12 @@ module Mellon
       end
 
       def default
-        keychain_path = Mellon.sh("security", "default-keychain")[KEYCHAIN_REGEXP, 1]
+        keychain_path = Mellon.security("default-keychain")[KEYCHAIN_REGEXP, 1]
         Keychain.new(keychain_path)
       end
 
       def list
-        Mellon.sh("security", "list-keychains").scan(KEYCHAIN_REGEXP).map do |(keychain_path)|
+        Mellon.security("list-keychains").scan(KEYCHAIN_REGEXP).map do |(keychain_path)|
           Keychain.new(keychain_path)
         end
       end

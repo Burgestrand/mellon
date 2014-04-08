@@ -6,6 +6,10 @@ module Mellon
   KEYCHAIN_REGEXP = /"(.+)"/
 
   class << self
+    def security(*command, &block)
+      sh("security", *command, &block)
+    end
+
     def sh(*command)
       $stderr.puts command.join(" ") if $VERBOSE
       output, stderr, status = Open3.capture3(*command)
