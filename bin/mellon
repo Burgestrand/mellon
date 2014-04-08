@@ -4,11 +4,37 @@
 require "mellon"
 require "slop"
 
-# Configuration
-default_name = File.basename(Dir.pwd)
-
 # Options
-keychain = nil
+$keychain = nil
+$default_name = File.basename(Dir.pwd)
+
+# Common procs
+define_common = lambda do |dsl|
+  dsl.on :k, :keychain=, "Specify keychain to use" do |keychain_name|
+    keychain_path = File.expand_path(keychain_name)
+
+    $keychain = if File.exists?(keychain_path)
+      Mellon::Keychain.new(keychain_path)
+    else
+      Mellon::Keychain.find(keychain_name)
+    end
+  end
+end
+
+# Convenience
+def name_and_keychain(argv)
+  name = argv.join(" ")
+  name = $default_name if name.empty?
+  $keychain ||= Mellon::Keychain.search(name)
+
+  unless $keychain
+    $stderr.puts "key not found: #{name}"
+    yield if block_given?
+    exit false
+  end
+
+  [name, $keychain]
+end
 
 Slop.parse(strict: true, help: true) do
   description "list globally known keychains."
@@ -21,31 +47,38 @@ Slop.parse(strict: true, help: true) do
     end
   end
 
-  description "show a keychain entry."
-  command "show" do
-    banner "Usage: mellon show [options] [name (default: #{default_name})]"
-
-    on :k, :keychain=, "Specify keychain to use" do |keychain_name|
-      keychain_path = File.expand_path(keychain_name)
-
-      keychain = if File.exists?(keychain_path)
-        Mellon::Keychain.new(keychain_path)
-      else
-        Mellon::Keychain.find(keychain_name)
-      end
-    end
+  description "edit or create a keychain entry."
+  command "edit" do
+    banner "Usage: mellon edit [options] [name (default: #{$default_name})]"
+    define_common[self]
 
     run do |opts, argv|
-      name = argv.join(" ")
-      name = default_name if name.empty?
-      keychain ||= Mellon::Keychain.search(name)
+      name, keychain = name_and_keychain(argv) do
+        $stderr.puts "If you want to create it, you need to specify keychain with -k."
+      end
 
-      if keychain
-        print keychain[name]
-      else
-        $stderr.puts "key not found: #{name}"
+      editor = ENV.fetch("EDITOR") do
+        $stderr.puts "$EDITOR is not set. Please set it to your preferred editor."
         exit false
       end
+
+      require "tempfile"
+      Tempfile.open([name, ".txt"]) do |io|
+        File.write io.path, keychain[name]
+        system editor, io.path
+        keychain[name] = File.read(io.path)
+      end
+    end
+  end
+
+  description "show a keychain entry."
+  command "show" do
+    banner "Usage: mellon show [options] [name (default: #{$default_name})]"
+    define_common[self]
+
+    run do |opts, argv|
+      name, keychain = name_and_keychain(argv)
+      print keychain[name]
     end
   end
 
