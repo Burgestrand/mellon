@@ -136,9 +136,14 @@ module Mellon
 
     def parse_password(password_info)
       unpacked = password_info[/password: 0x([a-f0-9]+)/i, 1]
-      password = [unpacked].pack("H*")
 
-      parsed = Plist.parse_xml(password)
+      password = if unpacked
+        [unpacked].pack("H*")
+      else
+        password_info[/password: "(.+)"/m, 1]
+      end
+
+      parsed = Plist.parse_xml(password.force_encoding("".encoding))
       if parsed and parsed["NOTE"]
         parsed["NOTE"]
       else
