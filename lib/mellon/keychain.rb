@@ -99,18 +99,14 @@ module Mellon
     # @option options [String] :label (service_name)
     # @raise [CommandError] if writing fails
     def write(key, data, options = {})
-      options = DEFAULT_OPTIONS.merge(options)
-
-      note_type = TYPES.fetch(options.fetch(:type, :note).to_s)
-      account_name = options.fetch(:account_name, "")
-      service_name = options.fetch(:service_name, key)
+      info = build_info(key, options)
 
       command "add-generic-password",
-        "-a", account_name, # keychain omits account for notes
-        "-s", service_name,
-        "-l", options.fetch(:label, service_name),
-        "-D", note_type.fetch(:kind),
-        "-C", note_type.fetch(:type),
+        "-a", info[:account_name],
+        "-s", info[:service_name],
+        "-l", info[:label],
+        "-D", info[:kind],
+        "-C", info[:type],
         "-T", "", # which applications have access (none)
         "-U", # upsert
         "-w", data
@@ -121,6 +117,23 @@ module Mellon
     def command(*command, &block)
       command += [path]
       Mellon.security *command, &block
+    end
+
+    def build_info(key, options = {})
+      options = DEFAULT_OPTIONS.merge(options)
+
+      note_type = TYPES.fetch(options.fetch(:type, :note).to_s)
+      account_name = options.fetch(:account_name, "")
+      service_name = options.fetch(:service_name, key)
+      label = options.fetch(:label, service_name)
+
+      {
+        account_name: account_name,
+        service_name: service_name,
+        label: label,
+        kind: note_type.fetch(:kind),
+        type: note_type.fetch(:type),
+      }
     end
 
     def parse_info(info)
