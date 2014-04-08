@@ -21,8 +21,7 @@ module Mellon
         stderr = "<no output>" if stderr.empty?
         error_string << "  " << stderr.chomp
 
-        $stderr.puts "[ERROR] #{error_string}"
-        exit false
+        abort "[ERROR] #{error_string}"
       end
 
       output.chomp
