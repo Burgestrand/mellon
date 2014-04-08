@@ -30,13 +30,12 @@ module Mellon
 
     def initialize(path)
       @path = path
+      @name = File.basename(path, ".keychain")
     end
 
     attr_reader :path
+    attr_reader :name
 
-    def name
-      File.basename(path, ".keychain")
-    end
 
   end
 end
