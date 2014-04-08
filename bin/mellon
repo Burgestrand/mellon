@@ -2,3 +2,54 @@
 # encoding: utf-8
 
 require "mellon"
+require "slop"
+
+# Configuration
+default_name = File.basename(Dir.pwd)
+
+# Options
+keychain = nil
+
+Slop.parse(strict: true, help: true) do
+  description "list globally known keychains."
+  command "list" do
+    run do
+      puts "Available keychains:"
+      Mellon::Keychain.list.each do |keychain|
+        puts "  #{keychain.name}"
+      end
+    end
+  end
+
+  description "show a keychain entry."
+  command "show" do
+    banner "Usage: mellon show [options] [name (default: #{default_name})]"
+
+    on :k, :keychain=, "Specify keychain to use" do |keychain_name|
+      keychain_path = File.expand_path(keychain_name)
+
+      keychain = if File.exists?(keychain_path)
+        Mellon::Keychain.new(keychain_path)
+      else
+        Mellon::Keychain.find(keychain_name)
+      end
+    end
+
+    run do |opts, argv|
+      name = argv.join(" ")
+      name = default_name if name.empty?
+      keychain ||= Mellon::Keychain.search(name)
+
+      if keychain
+        puts keychain[name]
+      else
+        $stderr.puts "key not found: #{name}"
+        exit false
+      end
+    end
+  end
+
+  run do |opts, argv|
+    puts opts
+  end
+end
