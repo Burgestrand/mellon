@@ -214,6 +214,8 @@ module Mellon
         password_info[/password: "(.+)"/m, 1]
       end
 
+      password ||= ""
+
       parsed = Plist.parse_xml(password.force_encoding("".encoding))
       if parsed and parsed["NOTE"]
         parsed["NOTE"]

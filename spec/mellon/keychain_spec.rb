@@ -38,6 +38,10 @@ describe Mellon::Keychain do
       keychain["plist"].should eq "Plist note."
     end
 
+    it "reads empty entries" do
+      keychain["empty"].should eq ""
+    end
+
     it "returns nil when there is no entry with the given name" do
       keychain["nonexisting note"].should be_nil
     end
