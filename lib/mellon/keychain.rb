@@ -2,7 +2,12 @@ module Mellon
   class Keychain
     class << self
       def find(name)
-        keychain = list.find { |keychain| keychain === name }
+        quoted = Regexp.quote(name)
+        regexp = Regexp.new(quoted, Regexp::IGNORECASE)
+
+        keychain = list.find do |keychain|
+          keychain.path =~ regexp
+        end
 
         if keychain.nil?
           raise KeyError, "Could not find keychain “#{name}” in #{list.map(&:name).join(", ")}"
@@ -33,9 +38,5 @@ module Mellon
       File.basename(path, ".keychain")
     end
 
-    def ===(name)
-      quoted = Regexp.quote(name)
-      path =~ Regexp.new(quoted, Regexp::IGNORECASE)
-    end
   end
 end
