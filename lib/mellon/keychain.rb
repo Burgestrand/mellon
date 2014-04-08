@@ -13,6 +13,17 @@ module Mellon
     }
 
     class << self
+      # Find the first keychain that contains the key.
+      #
+      # @param [String] key
+      # @return [Keychain, nil]
+      def search(key)
+        output = Mellon.security("find-generic-password", "-l", key)
+        new(output[/keychain: "(.+)"/i, 1])
+      rescue CommandError
+        nil
+      end
+
       # Find a keychain matching the given name.
       #
       # @param [String] name
