@@ -11,6 +11,11 @@ module Mellon
     }
 
     class << self
+      # Find a keychain matching the given name.
+      #
+      # @param [String] name
+      # @return [Keychain]
+      # @raise [KeyError] if no matching keychain was found
       def find(name)
         quoted = Regexp.quote(name)
         regexp = Regexp.new(quoted, Regexp::IGNORECASE)
@@ -26,11 +31,13 @@ module Mellon
         keychain
       end
 
+      # @return [Keychain] default keychain
       def default
         keychain_path = Mellon.security("default-keychain")[KEYCHAIN_REGEXP, 1]
         Keychain.new(keychain_path)
       end
 
+      # @return [Array<Keychain>] all available keychains
       def list
         Mellon.security("list-keychains").scan(KEYCHAIN_REGEXP).map do |(keychain_path)|
           Keychain.new(keychain_path)
@@ -38,14 +45,25 @@ module Mellon
       end
     end
 
+    # Initialize a keychain on the given path.
+    #
+    # @param [String] path
     def initialize(path)
       @path = path
       @name = File.basename(path, ".keychain")
     end
 
+    # @return [String] path to keychain
     attr_reader :path
+
+    # @return [String] keychain name (without extension)
     attr_reader :name
 
+    # Open the keychain for the duration of the block, and automatically
+    # close it once block has finished executing.
+    #
+    # @yield [keychain]
+    # @yieldparam keychain [Keychain]
     def open
       command "unlock-keychain"
       yield self
@@ -53,12 +71,29 @@ module Mellon
       command "lock-keychain"
     end
 
+    # Read a key from the keychain.
+    #
+    # @param [String] key
+    # @return [Array<Hash, String>] tuple of entry info, and text contents
+    # @raise [KeyError] if key was not found
     def read(key)
       command "find-generic-password", "-g", "-l", key do |info, password_info|
         [parse_info(info), parse_password(password_info)]
       end
+    rescue CommandError => e
+      raise KeyError, "key not found: #{key}"
     end
 
+    # Write data with given key to the keychain.
+    #
+    # @param [String] key
+    # @param [String] data
+    # @param [Hash] options
+    # @option options [#to_s] :type one of Keychain::TYPES
+    # @option options [String] :account_name ("")
+    # @option options [String] :service_name (key)
+    # @option options [String] :label (service_name)
+    # @raise [CommandError] if writing fails
     def write(key, data, options = {})
       options = DEFAULT_OPTIONS.merge(options)
 
@@ -75,8 +110,6 @@ module Mellon
         "-T", "", # which applications have access (none)
         "-U", # upsert
         "-w", data
-
-      true
     end
 
     private
