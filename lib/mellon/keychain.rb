@@ -2,6 +2,14 @@ require "plist"
 
 module Mellon
   class Keychain
+    DEFAULT_OPTIONS = { type: :note }
+    TYPES = {
+      "note" => {
+        kind: "secure note",
+        type: "note"
+      }
+    }
+
     class << self
       def find(name)
         quoted = Regexp.quote(name)
@@ -50,6 +58,27 @@ module Mellon
         [parse_info(info), parse_password(password_info)]
       end
     end
+
+    def write(key, data, options = {})
+      options = DEFAULT_OPTIONS.merge(options)
+
+      note_type = TYPES.fetch(options.fetch(:type).to_s)
+      account_name = options.fetch(:account_name, "")
+      service_name = options.fetch(:service_name, key)
+
+      command "add-generic-password",
+        "-a", account_name, # keychain omits account for notes
+        "-s", service_name,
+        "-l", options.fetch(:label, service_name),
+        "-D", note_type.fetch(:kind),
+        "-C", note_type.fetch(:type),
+        "-T", "", # which applications have access (none)
+        "-U", # upsert
+        "-w", data
+
+      true
+    end
+
     private
 
     def command(*command, &block)
