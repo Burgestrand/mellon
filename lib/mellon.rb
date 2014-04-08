@@ -1,5 +1,6 @@
 require "mellon/version"
 require "mellon/keychain"
+require "shellwords"
 
 module Mellon
   KEYCHAIN_REGEXP = /"(.+)"/
