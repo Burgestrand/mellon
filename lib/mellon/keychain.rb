@@ -83,12 +83,17 @@ module Mellon
       nil
     end
 
-    # Write data with given key to the keychain.
+    # Write data with given key to the keychain, or update existing key if it exists.
+    #
+    # @note keychain entries are not unique by key, but also by the information
+    #       provided through options; two entries with same key but different
+    #       account name (for example), will become two different entries when
+    #       writing.
     #
     # @param [String] key
     # @param [String] data
     # @param [Hash] options
-    # @option options [#to_s] :type one of Keychain::TYPES
+    # @option options [#to_s] :type (:note) one of Keychain::TYPES
     # @option options [String] :account_name ("")
     # @option options [String] :service_name (key)
     # @option options [String] :label (service_name)
@@ -96,7 +101,7 @@ module Mellon
     def write(key, data, options = {})
       options = DEFAULT_OPTIONS.merge(options)
 
-      note_type = TYPES.fetch(options.fetch(:type).to_s)
+      note_type = TYPES.fetch(options.fetch(:type, :note).to_s)
       account_name = options.fetch(:account_name, "")
       service_name = options.fetch(:service_name, key)
 
