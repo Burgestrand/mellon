@@ -5,6 +5,9 @@ require "mellon/note"
 module Mellon
   KEYCHAIN_REGEXP = /"(.+)"/
 
+  class Error < StandardError; end
+  class CommandError < Error; end
+
   class << self
     def security(*command, &block)
       sh("security", *command, &block)
@@ -24,7 +27,7 @@ module Mellon
         stderr = "<no output>" if stderr.empty?
         error_string << "  " << stderr.chomp
 
-        abort "[ERROR] #{error_string}"
+        raise CommandError, "[ERROR] #{error_string}"
       end
 
       if block_given?
