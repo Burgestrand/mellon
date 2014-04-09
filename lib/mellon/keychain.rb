@@ -1,5 +1,4 @@
 require "plist"
-require "open3"
 
 module Mellon
   # Keychain provides simple methods for reading and storing keychain entries.
@@ -18,7 +17,7 @@ module Mellon
       # @param [String] key
       # @return [Keychain, nil]
       def search(key)
-        output = Mellon.security("find-generic-password", "-l", key)
+        output = ShellUtils.security("find-generic-password", "-l", key)
         new(output[/keychain: "(.+)"/i, 1])
       rescue CommandError
         nil
@@ -46,13 +45,13 @@ module Mellon
 
       # @return [Keychain] default keychain
       def default
-        keychain_path = Mellon.security("default-keychain")[KEYCHAIN_REGEXP, 1]
+        keychain_path = ShellUtils.security("default-keychain")[KEYCHAIN_REGEXP, 1]
         Keychain.new(keychain_path)
       end
 
       # @return [Array<Keychain>] all available keychains
       def list
-        Mellon.security("list-keychains").scan(KEYCHAIN_REGEXP).map do |(keychain_path)|
+        ShellUtils.security("list-keychains").scan(KEYCHAIN_REGEXP).map do |(keychain_path)|
           Keychain.new(keychain_path)
         end
       end
@@ -168,10 +167,9 @@ module Mellon
     # Execute a command with the context of this keychain.
     #
     # @param [Array<String>] command
-    # @see Mellons.h
     def command(*command, &block)
       command += [path]
-      Mellon.security *command, &block
+      ShellUtils.security *command, &block
     end
 
     private
