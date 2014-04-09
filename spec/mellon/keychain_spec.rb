@@ -1,20 +1,6 @@
 describe Mellon::Keychain do
-  around do |example|
-    FileUtils.cp(keychain_path, temporary_keychain_path)
-    example.run
-    FileUtils.rm(temporary_keychain_path)
-  end
-
-  let(:temporary_keychain_path) do
-    File.expand_path("../temporary_keychain.keychain", __dir__)
-  end
-
-  let(:keychain_path) do
-    File.expand_path("../keychain.keychain", __dir__)
-  end
-
   subject(:keychain) do
-    Mellon::Keychain.new(temporary_keychain_path)
+    Mellon::Keychain.new(keychain_path)
   end
 
   specify "#name" do
@@ -22,7 +8,7 @@ describe Mellon::Keychain do
   end
 
   specify "#path" do
-    keychain.path.should eq temporary_keychain_path
+    keychain.path.should eq keychain_path
   end
 
   describe "fetch" do
