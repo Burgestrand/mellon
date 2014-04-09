@@ -25,6 +25,33 @@ describe Mellon::Keychain do
     keychain.path.should eq temporary_keychain_path
   end
 
+  describe "fetch" do
+    it "delegates (and as such, behaves equally) to #[]" do
+      keychain.should_receive(:[]).with("simple").and_call_original
+      keychain.fetch("simple").should eq "Simple note"
+    end
+
+    describe "behaves like Hash#fetch" do
+      specify "when key exists" do
+        keychain.fetch("simple", nil).should eq "Simple note"
+        keychain.fetch("simple", "default value").should eq "Simple note"
+        keychain.fetch("simple", "default value") { "block value" }.should eq "Simple note"
+        keychain.fetch("simple") { "block value" }.should eq "Simple note"
+
+        keychain.fetch("simple").should eq "Simple note"
+      end
+
+      specify "when key does not exist" do
+        keychain.fetch("missing", nil).should eq nil
+        keychain.fetch("missing", "default value").should eq "default value"
+        keychain.fetch("missing", "default value") { "block value" }.should eq "block value"
+        keychain.fetch("missing") { "block value" }.should eq "block value"
+
+        expect { keychain.fetch("missing") }.to raise_error(KeyError)
+      end
+    end
+  end
+
   describe "#[key]" do
     it "reads simple entries" do
       keychain["simple"].should eq "Simple note"

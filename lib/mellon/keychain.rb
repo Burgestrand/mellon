@@ -72,6 +72,18 @@ module Mellon
     # @return [String] keychain name (without extension)
     attr_reader :name
 
+    # Retrieve a value, but if it does not exist return the default value,
+    # or call the provided block, or raise an error. See Hash#fetch.
+    #
+    # @param [String] key
+    # @param default
+    # @return [String] value for key, default, or value from block
+    # @yield if key does not exist, and block is given
+    # @raise [KeyError] if key does not exist, and no default is given
+    def fetch(key, *args, &block)
+      self[key] or {}.fetch(key, *args, &block)
+    end
+
     # @param [String] key
     # @return [String, nil] contents of entry at key, or nil if not set
     def [](key)
