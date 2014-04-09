@@ -18,7 +18,7 @@ module Mellon
       # @return [Keychain, nil]
       def search(key)
         output = ShellUtils.security("find-generic-password", "-l", key)
-        new(output[/keychain: "(.+)"/i, 1])
+        new(output[/keychain: "(.+)"/i, 1], ensure_exists: false)
       rescue CommandError
         nil
       end
@@ -46,13 +46,13 @@ module Mellon
       # @return [Keychain] default keychain
       def default
         keychain_path = ShellUtils.security("default-keychain")[KEYCHAIN_REGEXP, 1]
-        Keychain.new(keychain_path)
+        Keychain.new(keychain_path, ensure_exists: false)
       end
 
       # @return [Array<Keychain>] all available keychains
       def list
         ShellUtils.security("list-keychains").scan(KEYCHAIN_REGEXP).map do |(keychain_path)|
-          Keychain.new(keychain_path)
+          Keychain.new(keychain_path, ensure_exists: false)
         end
       end
     end
@@ -60,10 +60,11 @@ module Mellon
     # Initialize a keychain on the given path.
     #
     # @param [String] path
-    def initialize(path)
+    # @param [Boolean] ensure_exists check if keychain exists or not
+    def initialize(path, ensure_exists: true)
       @path = path
       @name = File.basename(path, ".keychain")
-      command "show-keychain-info"
+      command "show-keychain-info" if ensure_exists
     end
 
     # @return [String] path to keychain
