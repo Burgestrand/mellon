@@ -6,7 +6,6 @@ Mellon is four things:
 
 - A simple library for reading and writing notes in Mac OSX keychains. (see [Mellon::Keychain][])
 - A simple library for using Mac OSX keychain notes as hash storage. (see [Mellon::Store][])
-- An adapter for [econfig](https://github.com/elabs/econfig), that uses [Mellon::Store][].
 - A tiny CLI interface for [Mellon::Keychain][]. (see [Command-line interface](#command-line-interface))
 
 I built Mellon because I wanted Yet Another Way of Managing Application Secrets™. Frankly, I am fed up
@@ -25,33 +24,11 @@ Mellon is intended for usage during development only. The recommended workflow i
 
 1. Create an OSX keychain using Keychain Access, name it something hip and clever, like `thanks-a-latte`.
 2. Share your keychain with your colleagues, through iCloud sync, Dropbox or similar.
-3. Hook up Mellon with your application according to the instructions below.
+3. Hook up Mellon with your application according to instructions below.
 
-### Using with Econfig (recommended) and Rails
+### Using with Rails and Econfig (recommended)
 
-Add to your Gemfile:
-
-```ruby
-gem "econfig", require: "econfig/rails"
-gem "mellon", require: "mellon/econfig"
-```
-
-And create an initializer `config/initializers/econfig.rb`:
-
-```ruby
-if Rails.env.development?
-  Econfig.instance.backends << Econfig::Mellon.new(Rails.application.name, keychain: "thanks-a-latte")
-
-  MyRailsApplication.extend(Econfig::Shortcut)
-end
-```
-
-Now you’ll be able look up, and change, your shared configuration as such:
-
-```ruby
-MyRailsApplication.some_configuration_key # => some value
-MyRailsApplication.some_configuration_key = "new value" # automatically synced to keychain
-```
+See instructions over at [econfig-keychain](https://github.com/elabs/econfig-keychain).
 
 # Documentation
 
