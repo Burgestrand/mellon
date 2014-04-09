@@ -71,7 +71,7 @@ When you install the Mellon gem you also get an executable called `mellon`. See 
 
 # License
 
-[See MIT-LICENSE.txt](./MIT-LICENSE.txt).
+[See LICENSE](./LICENSE).
 
 [Elabs]: http://www.elabs.se/
 [elabs logo]: ./elabs-logo.png?raw=true
