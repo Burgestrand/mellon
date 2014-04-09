@@ -63,6 +63,7 @@ module Mellon
     def initialize(path)
       @path = path
       @name = File.basename(path, ".keychain")
+      command "show-keychain-info"
     end
 
     # @return [String] path to keychain

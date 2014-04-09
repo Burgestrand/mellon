@@ -11,6 +11,12 @@ describe Mellon::Keychain do
     keychain.path.should eq keychain_path
   end
 
+  describe "#initialize" do
+    it "raises an error if keychain does not exist" do
+      expect { Mellon::Keychain.new("missing.keychain") }.to raise_error(Mellon::Error, /missing.keychain/)
+    end
+  end
+
   describe "fetch" do
     it "delegates (and as such, behaves equally) to #[]" do
       keychain.should_receive(:[]).with("simple").and_call_original
