@@ -9,7 +9,7 @@ Mellon is four things:
 - An adapter for [econfig](https://github.com/elabs/econfig), that uses [Mellon::Store][].
 - A tiny CLI interface for [Mellon::Keychain][]. (see [Command-line interface](#command-line-interface))
 
-I built Mellon because I wanted Yet Another Way of Managing Rails Application Secrets™.
+I built Mellon because I wanted Yet Another Way of Managing Application Secrets™.
 
 Mellon is sponsored by [Elabs][].
 
