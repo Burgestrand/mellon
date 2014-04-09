@@ -37,6 +37,11 @@ def name_and_keychain(argv)
 end
 
 Slop.parse(strict: true, help: true) do
+  on :v, :version, "Show Mellon version." do
+    puts "Mellon v#{Mellon::VERSION}"
+    exit
+  end
+
   description "list globally known keychains."
   command "list" do
     run do
