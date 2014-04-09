@@ -21,13 +21,13 @@ Mellon is sponsored by [Elabs][].
 
 Add to your Gemfile:
 
-```
+```ruby
 gem "mellon", require: "mellon/econfig"
 ```
 
 And create an initializer `config/initializers/econfig.rb`:
 
-```
+```ruby
 if Rails.env.development?
   Econfig.instance.backends << Econfig::Mellon.new(Rails.application.name)
 end
@@ -51,7 +51,7 @@ keychain["ruby note"] = nil # deletes keychain note `ruby note`
 
 Mellon::Store is a layer above Mellon::Keychain, allowing you to use a single keychain note as hash storage. Notes are serialized as YAML by default.
 
-```
+```ruby
 project_name = "ruby note"
 store = Mellon::Store.new(project_name, keychain: Mellon::Keychain.default)
 store["some key"] # => nil
