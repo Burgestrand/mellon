@@ -69,6 +69,8 @@ keychain["ruby note"] # => "Hello from Ruby!"
 keychain["ruby note"] = nil # deletes keychain note `ruby note`
 ```
 
+More documentation can be found at the [API reference for Mellon::Keychain](http://rdoc.info/github/elabs/mellon/master/Mellon/Keychain).
+
 ## Mellon::Store
 
 Mellon::Store is a layer above Mellon::Keychain, allowing you to use a single keychain note as hash storage. Notes are serialized as YAML by default.
@@ -83,6 +85,8 @@ store["some key"] # => "Hello from Ruby!"
 # Have a peek at the data, which is serialized as YAML
 store.keychain[store.project_name] # => "---\nsome key: Hello from Ruby!\n"
 ```
+
+More documentation can be found at the [API reference for Mellon::Store](http://rdoc.info/github/elabs/mellon/master/Mellon/Store).
 
 ## Command-line interface
 
