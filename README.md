@@ -66,7 +66,7 @@ store.keychain[store.project_name] # => "---\nsome key: Hello from Ruby!\n"
 
 When you install the Mellon gem you also get an executable called `mellon`. See `mellon -h` for usage information.
 
-## License
+# License
 
 [See MIT-LICENSE.txt](./MIT-LICENSE.txt).
 
