@@ -26,14 +26,14 @@ module Mellon
     # @param [String] project_name
     # @param [String, Keychain, nil] keychain
     # @param [#dump, #load] serializer
-    def initialize(project_name, keychain = Keychain.search(project_name), serializer = YAML)
+    def initialize(project_name, keychain: Keychain.search(project_name), serializer: YAML)
       @project_name = project_name
-      @keychain = if keychain.is_a?(String)
-        Keychain.find(keychain)
+      @keychain = if keychain.is_a?(Keychain)
+        keychain
       elsif keychain.nil?
         Keychain.default
       else
-        keychain
+        Keychain.find(keychain.to_s)
       end
       @serializer = serializer
     end

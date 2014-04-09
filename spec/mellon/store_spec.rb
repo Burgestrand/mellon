@@ -1,5 +1,5 @@
 describe Mellon::Store do
-  subject(:store) { Mellon::Store.new(project_name, keychain) }
+  subject(:store) { Mellon::Store.new(project_name, keychain: keychain) }
   let(:project_name) { "yaml store" }
   let(:keychain) { Mellon::Keychain.new(keychain_path) }
 
@@ -9,7 +9,6 @@ describe Mellon::Store do
     end
 
     it "finds and uses the keychain containing the project name by default" do
-      keychain = double
       Mellon::Keychain.should_receive(:search).with(project_name).and_return(keychain)
       Mellon::Store.new(project_name).keychain.should eq keychain
     end
@@ -24,19 +23,18 @@ describe Mellon::Store do
     it "accepts specifying the keychain by name" do
       keychain = double
       Mellon::Keychain.should_receive(:find).with("projects").and_return(keychain)
-      store = Mellon::Store.new(project_name, "projects")
+      store = Mellon::Store.new(project_name, keychain: "projects")
       store.keychain.should eq keychain
     end
 
     it "accepts specifying the keychain object" do
-      keychain = double
-      store = Mellon::Store.new(project_name, keychain)
+      store = Mellon::Store.new(project_name, keychain: keychain)
       store.keychain.should eq keychain
     end
 
     it "allows setting the serializer" do
       require "json"
-      store = Mellon::Store.new("json store", keychain, JSON)
+      store = Mellon::Store.new("json store", keychain: keychain, serializer: JSON)
       store["some value"].should eq "This is some json value"
       store["some value"] = "New value"
       store["some value"].should eq "New value"
@@ -49,7 +47,7 @@ describe Mellon::Store do
     end
 
     it "returns nil if store entry does not exist" do
-      store = Mellon::Store.new("missing project", keychain)
+      store = Mellon::Store.new("missing project", keychain: keychain)
       store["some value"].should be_nil
     end
   end
@@ -62,7 +60,7 @@ describe Mellon::Store do
     end
 
     it "creates the store entry if it does not exist" do
-      store = Mellon::Store.new("missing project", keychain)
+      store = Mellon::Store.new("missing project", keychain: keychain)
       store["some value"].should be_nil
       store["some value"] = "That value"
       store["some value"].should eq "That value"

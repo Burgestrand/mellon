@@ -1,6 +1,5 @@
 require "mellon"
 require "econfig"
-require "yaml"
 
 module Econfig
   class Mellon < Mellon::Store
