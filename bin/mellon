@@ -6,7 +6,20 @@ require "slop"
 
 # Options
 $keychain = nil
-$default_name = File.basename(Dir.pwd)
+
+def find_closest(*filenames)
+  require "pathname"
+  Pathname.pwd.ascend do |parent|
+    filenames.each do |filename|
+      file = parent + filename
+      return parent.to_s if file.exist?
+    end
+  end
+
+  yield
+end
+
+$default_name = File.basename(find_closest("Gemfile", "Rakefile") { Dir.pwd })
 
 # Common procs
 define_common = lambda do |dsl|
