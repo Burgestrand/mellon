@@ -55,6 +55,8 @@ MyRailsApplication.some_configuration_key = "new value" # automatically synced t
 
 # Documentation
 
+An API reference can be found at [rdoc.info/github/elabs/mellon](http://rdoc.info/github/elabs/mellon/master/frames).
+
 ## Mellon::Keychain
 
 Mellon::Keychain allows you to read and write notes in OSX keychains.
