@@ -11,6 +11,22 @@ describe Mellon::Keychain do
     keychain.path.should eq keychain_path
   end
 
+  specify "keychain can be stored in hash" do
+    hash = {}
+    hash[keychain] = "some value"
+    hash[Mellon::Keychain.new(keychain.path)].should eq "some value"
+  end
+
+  describe "#==" do
+    it "is equal to another keychain with same path" do
+      keychain.should eq Mellon::Keychain.new(keychain.path)
+    end
+
+    it "is not equal to any other object" do
+      keychain.should_not eq({})
+    end
+  end
+
   describe "#initialize" do
     it "raises an error if keychain does not exist" do
       expect { Mellon::Keychain.new("missing.keychain") }.to raise_error(Mellon::Error, /missing.keychain/)

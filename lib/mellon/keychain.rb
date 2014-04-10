@@ -99,6 +99,28 @@ module Mellon
       end
     end
 
+
+    # @return a hash unique to keychains of the same path
+    def hash
+      path.hash
+    end
+
+    # @param other
+    # @return [Boolean] true if the keychains have the same path
+    def eql?(other)
+      self == other or super
+    end
+
+    # @param other
+    # @return [Boolean] true if the keychains have the same path
+    def ==(other)
+      if other.is_a?(Keychain)
+        path == other.path
+      else
+        super
+      end
+    end
+
     private
 
     # Read a key from the keychain.
