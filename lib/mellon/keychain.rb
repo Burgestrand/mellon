@@ -3,14 +3,6 @@ require "plist"
 module Mellon
   # Keychain provides simple methods for reading and storing keychain entries.
   class Keychain
-    DEFAULT_OPTIONS = { type: :note }
-    TYPES = {
-      "note" => {
-        kind: "secure note",
-        type: "note"
-      }
-    }
-
     class << self
       # Find the first keychain that contains the key.
       #
@@ -46,13 +38,13 @@ module Mellon
       # @return [Keychain] default keychain
       def default
         keychain_path = ShellUtils.security("default-keychain")[KEYCHAIN_REGEXP, 1]
-        Keychain.new(keychain_path, ensure_exists: false)
+        new(keychain_path, ensure_exists: false)
       end
 
       # @return [Array<Keychain>] all available keychains
       def list
         ShellUtils.security("list-keychains").scan(KEYCHAIN_REGEXP).map do |(keychain_path)|
-          Keychain.new(keychain_path, ensure_exists: false)
+          new(keychain_path, ensure_exists: false)
         end
       end
     end
@@ -115,7 +107,7 @@ module Mellon
     # @return [Array<Hash, String>, nil] tuple of entry info, and text contents, or nil if key does not exist
     def read(key)
       command "find-generic-password", "-g", "-l", key do |info, password_info|
-        [parse_info(info), parse_contents(password_info)]
+        [Utils.parse_info(info), Utils.parse_contents(password_info)]
       end
     rescue CommandError => e
       nil
@@ -131,13 +123,13 @@ module Mellon
     # @param [String] key
     # @param [String] data
     # @param [Hash] options
-    # @option options [#to_s] :type (:note) one of Keychain::TYPES
+    # @option options [#to_s] :type (:note) one of Mellon::TYPES
     # @option options [String] :account_name ("")
     # @option options [String] :service_name (key)
     # @option options [String] :label (service_name)
     # @raise [CommandError] if writing fails
     def write(key, data, options = {})
-      info = build_info(key, options)
+      info = Utils.build_info(key, options)
 
       command "add-generic-password",
         "-a", info[:account_name],
@@ -156,7 +148,7 @@ module Mellon
     # @param [Hash] options
     # @option (see #write)
     def delete(key, options = {})
-      info = build_info(key, options)
+      info = Utils.build_info(key, options)
 
       command "delete-generic-password",
         "-a", info[:account_name],
@@ -172,68 +164,6 @@ module Mellon
     def command(*command, &block)
       command += [path]
       ShellUtils.security *command, &block
-    end
-
-    private
-
-    # Build an info hash used for #write and #delete.
-    #
-    # @param [String] key
-    # @param [Hash] options
-    # @return [Hash]
-    def build_info(key, options = {})
-      options = DEFAULT_OPTIONS.merge(options)
-
-      note_type = TYPES.fetch(options.fetch(:type, :note).to_s)
-      account_name = options.fetch(:account_name, "")
-      service_name = options.fetch(:service_name, key)
-      label = options.fetch(:label, service_name)
-
-      {
-        account_name: account_name,
-        service_name: service_name,
-        label: label,
-        kind: note_type.fetch(:kind),
-        type: note_type.fetch(:type),
-      }
-    end
-
-    # Parse entry information.
-    #
-    # @param [String] info
-    # @return [Hash]
-    def parse_info(info)
-      extract = lambda { |key| info[/#{key}.+=(?:<NULL>|[^"]*"(.+)")/, 1].to_s }
-      {
-        account_name: extract["acct"],
-        kind: extract["desc"],
-        type: extract["type"],
-        label: extract["0x00000007"],
-        service_name: extract["svce"],
-      }
-    end
-
-    # Parse entry contents.
-    #
-    # @param [String]
-    # @return [String]
-    def parse_contents(password_info)
-      unpacked = password_info[/password: 0x([a-f0-9]+)/i, 1]
-
-      password = if unpacked
-        [unpacked].pack("H*")
-      else
-        password_info[/password: "(.+)"/m, 1]
-      end
-
-      password ||= ""
-
-      parsed = Plist.parse_xml(password.force_encoding("".encoding))
-      if parsed and parsed["NOTE"]
-        parsed["NOTE"]
-      else
-        password
-      end
     end
   end
 end
