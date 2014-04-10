@@ -99,6 +99,14 @@ module Mellon
       end
     end
 
+    # Retrieve all available keys.
+    #
+    # @return [Array<String>]
+    def keys
+      Utils.parse_dump(command "dump-keychain").map do |keychain, info|
+        info[:label]
+      end
+    end
 
     # @return a hash unique to keychains of the same path
     def hash

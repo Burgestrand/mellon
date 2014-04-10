@@ -24,6 +24,33 @@ module Mellon
       }
     end
 
+    # @param [String]
+    # @return [Array<[keychain_path, info]>]
+    def parse_dump(keychain_dump)
+      attributes_start = /attributes:/
+      keychain_start = /keychain: #{KEYCHAIN_REGEXP}/
+
+      keychain_path = nil
+      state = :ignoring
+      info_chunks = keychain_dump.each_line.chunk do |line|
+        if line =~ attributes_start
+          state = :attributes
+          nil
+        elsif line =~ keychain_start
+          state = :ignoring
+          keychain_path = $1
+          nil
+        elsif state == :attributes
+          keychain_path
+        end
+      end
+
+      info_chunks.each_with_object([]) do |(keychain_path, chunk), keys|
+        info = parse_info(chunk.join)
+        keys << [keychain_path, info] if TYPES.has_key?(info[:type])
+      end
+    end
+
     # Parse entry information.
     #
     # @param [String] info

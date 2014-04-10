@@ -33,7 +33,13 @@ describe Mellon::Keychain do
     end
   end
 
-  describe "fetch" do
+  describe "#keys" do
+    it "lists all keys available in the keychain" do
+      keychain.keys.should =~ ["simple", "existing", "encoded", "plist", "empty", "doomed", "json store", "yaml store"]
+    end
+  end
+
+  describe "#fetch" do
     it "delegates (and as such, behaves equally) to #[]" do
       keychain.should_receive(:[]).with("simple").and_call_original
       keychain.fetch("simple").should eq "Simple note"
