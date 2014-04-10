@@ -55,23 +55,33 @@ Slop.parse(strict: true, help: true) do
     exit
   end
 
-  description "list all available keychain entries."
+  description "list keychain entries."
   command "list" do
+    banner "Usage: mellon list [options]"
+    define_common[self]
+
     run do
-      entries = {}
+      if $keychain.nil?
+        entries = {}
+        Mellon::Keychain.list.map do |keychain|
+          keys = keychain.keys
+          entries[keychain] = keys if keys.length > 0
+        end
 
-      Mellon::Keychain.list.map do |keychain|
-        keys = keychain.keys
-        entries[keychain] = keys if keys.length > 0
-      end
-
-      if entries.empty?
-        puts "There are no keychains with entries."
+        if entries.empty?
+          puts "There are no keychains with entries."
+        else
+          puts entries.map { |keychain, entries|
+            joiner = "\n    "
+            "#{keychain.path}:#{joiner}" << entries.join(joiner)
+          }.join("\n\n")
+        end
       else
-        puts entries.map { |keychain, entries|
-          joiner = "\n    "
-          "#{keychain.path}:#{joiner}" << entries.join(joiner)
-        }.join("\n\n")
+        joiner = "\n    "
+        keychain = $keychain
+        entries  = keychain.keys
+
+        puts "#{keychain.path}:#{joiner}" << entries.join(joiner)
       end
     end
   end
