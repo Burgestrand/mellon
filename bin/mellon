@@ -101,11 +101,20 @@ Slop.parse(strict: true, help: true) do
         exit false
       end
 
+      require "shellwords"
       require "tempfile"
       Tempfile.open([name, ".txt"]) do |io|
         File.write io.path, keychain[name]
-        system editor, io.path
-        keychain[name] = File.read(io.path)
+        stderr_r, stderr_w = IO.pipe
+        system("$EDITOR #{Shellwords.escape(io.path)}", :err => stderr_w)
+        status = $?
+        stderr_w.close
+
+        if status.success?
+          keychain[name] = File.read(io.path)
+        else
+          $stderr.puts "[#{status}] #{stderr_r.read}"
+        end
       end
     end
   end
