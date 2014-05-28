@@ -50,6 +50,13 @@ describe Mellon::Store do
       store = Mellon::Store.new("missing project", keychain: keychain)
       store["some value"].should be_nil
     end
+
+    it "returns nil if keychain item is empty" do
+      store = Mellon::Store.new("empty", keychain: keychain)
+      store["some value"].should be_nil
+      store["some value"] = "New value"
+      store["some value"].should eq "New value"
+    end
   end
 
   describe "#[]=" do

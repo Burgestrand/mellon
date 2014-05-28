@@ -63,12 +63,8 @@ module Mellon
 
     def data
       config = @keychain[@project_name]
-
-      if config
-        @serializer.load(config)
-      else
-        {}
-      end
+      data = @serializer.load(config) if config
+      data or {}
     end
 
     def dump(hash)
