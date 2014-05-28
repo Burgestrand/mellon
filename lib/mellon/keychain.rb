@@ -3,6 +3,8 @@ require "plist"
 module Mellon
   # Keychain provides simple methods for reading and storing keychain entries.
   class Keychain
+    ENTRY_MISSING = /SecKeychainSearchCopyNext/.freeze
+
     class << self
       # Find the first keychain that contains the key.
       #
@@ -11,7 +13,8 @@ module Mellon
       def search(key)
         output = ShellUtils.security("find-generic-password", "-l", key)
         new(output[/keychain: "(.+)"/i, 1], ensure_exists: false)
-      rescue CommandError
+      rescue CommandError => e
+        raise unless e.message =~ ENTRY_MISSING
         nil
       end
 
@@ -140,6 +143,7 @@ module Mellon
         [Utils.parse_info(info), Utils.parse_contents(password_info)]
       end
     rescue CommandError => e
+      raise unless e.message =~ ENTRY_MISSING
       nil
     end
 

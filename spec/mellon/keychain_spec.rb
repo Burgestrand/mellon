@@ -86,6 +86,15 @@ describe Mellon::Keychain do
     it "returns nil when there is no entry with the given name" do
       keychain["nonexisting note"].should be_nil
     end
+
+    it "raises an error when command exits for a reason other than key missing" do
+      error = Mellon::CommandError.new(<<-ERROR)
+security find-generic-password -g -l unreadable /Users/dev/Projects/mellon/spec/temporary_keychain.keychain
+  security: SecKeychainItemCopyAccess: In dark wake, no UI possible
+ERROR
+      Mellon::ShellUtils.should_receive(:sh).and_raise(error)
+      expect { keychain["simple"] }.to raise_error(Mellon::CommandError, /dark wake/)
+    end
   end
 
   describe "#[]=" do
