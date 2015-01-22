@@ -59,6 +59,11 @@ module Mellon
       dump data.merge(key => value)
     end
 
+    # @return [Hash]
+    def to_h
+      data
+    end
+
     private
 
     def data

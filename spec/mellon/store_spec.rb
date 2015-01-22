@@ -74,6 +74,16 @@ describe Mellon::Store do
     end
   end
 
+  describe "#to_h" do
+    it "returns a hash with all keys contained" do
+      store["new value"] = "This is new value"
+      store.to_h.should eq({
+        "some value" => "This is some yaml value",
+        "new value"  => "This is new value"
+      })
+    end
+  end
+
   specify "#fetch" do
     store.fetch("some value").should eq "This is some yaml value"
     store.fetch("missing value", "default").should eq "default"
