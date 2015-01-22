@@ -92,7 +92,7 @@ describe Mellon::Keychain do
 security find-generic-password -g -l unreadable /Users/dev/Projects/mellon/spec/temporary_keychain.keychain
   security: SecKeychainItemCopyAccess: In dark wake, no UI possible
 ERROR
-      Mellon::ShellUtils.should_receive(:sh).and_raise(error)
+      Mellon::Utils.should_receive(:sh).and_raise(error)
       expect { keychain["simple"] }.to raise_error(Mellon::CommandError, /dark wake/)
     end
   end

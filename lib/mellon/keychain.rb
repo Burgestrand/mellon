@@ -11,7 +11,7 @@ module Mellon
       # @param [String] key
       # @return [Keychain, nil]
       def search(key)
-        output = ShellUtils.security("find-generic-password", "-l", key)
+        output = Utils.security("find-generic-password", "-l", key)
         new(output[/keychain: "(.+)"/i, 1], ensure_exists: false)
       rescue CommandError => e
         raise unless e.message =~ ENTRY_MISSING
@@ -40,13 +40,13 @@ module Mellon
 
       # @return [Keychain] default keychain
       def default
-        keychain_path = ShellUtils.security("default-keychain")[KEYCHAIN_REGEXP, 1]
+        keychain_path = Utils.security("default-keychain")[KEYCHAIN_REGEXP, 1]
         new(keychain_path, ensure_exists: false)
       end
 
       # @return [Array<Keychain>] all available keychains
       def list
-        ShellUtils.security("list-keychains").scan(KEYCHAIN_REGEXP).map do |(keychain_path)|
+        Utils.security("list-keychains").scan(KEYCHAIN_REGEXP).map do |(keychain_path)|
           new(keychain_path, ensure_exists: false)
         end
       end
@@ -197,7 +197,7 @@ module Mellon
     # @param [Array<String>] command
     def command(*command, &block)
       command += [path]
-      ShellUtils.security *command, &block
+      Utils.security *command, &block
     end
   end
 end
