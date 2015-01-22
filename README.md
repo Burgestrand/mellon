@@ -32,7 +32,7 @@ See instructions over at [econfig-keychain](https://github.com/elabs/econfig-key
 
 # Documentation
 
-An API reference can be found at [rdoc.info/github/elabs/mellon](http://rdoc.info/github/elabs/mellon/master/frames).
+An API reference can be found at [rubydoc.info/github/elabs/mellon](http://www.rubydoc.info/github/elabs/mellon/).
 
 ## Mellon::Keychain
 
@@ -46,7 +46,7 @@ keychain["ruby note"] # => "Hello from Ruby!"
 keychain["ruby note"] = nil # deletes keychain note `ruby note`
 ```
 
-More documentation can be found at the [API reference for Mellon::Keychain](http://rdoc.info/github/elabs/mellon/master/Mellon/Keychain).
+More documentation can be found at the [API reference for Mellon::Keychain](http://www.rubydoc.info/github/elabs/mellon/Mellon/Keychain).
 
 ## Mellon::Store
 
@@ -63,7 +63,7 @@ store["some key"] # => "Hello from Ruby!"
 store.keychain[store.project_name] # => "---\nsome key: Hello from Ruby!\n"
 ```
 
-More documentation can be found at the [API reference for Mellon::Store](http://rdoc.info/github/elabs/mellon/master/Mellon/Store).
+More documentation can be found at the [API reference for Mellon::Store](http://www.rubydoc.info/github/elabs/mellon/Mellon/Store).
 
 ## Command-line interface
 
