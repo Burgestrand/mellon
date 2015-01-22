@@ -75,5 +75,5 @@ When you install the Mellon gem you also get an executable called `mellon`. See 
 
 [Elabs]: http://www.elabs.se/
 [elabs logo]: ./elabs-logo.png?raw=true
-[Mellon::Keychain]: #mellon-keychain
-[Mellon::Store]: #mellon-store
+[Mellon::Keychain]: #mellonkeychain
+[Mellon::Store]: #mellonstore
