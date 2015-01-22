@@ -10,11 +10,16 @@ module Mellon
     end
 
     def sh(*command)
-      $stderr.puts command.join(" ") if $VERBOSE
+      $stderr.puts "$ " + command.join(" ") if $VERBOSE
       stdout, stderr, status = Open3.capture3(*command)
 
       stdout.chomp!
       stderr.chomp!
+
+      if $DEBUG
+        $stderr.puts stdout.gsub(/(?<=\n|\A)/, "--> ") unless stdout.empty?
+        $stderr.puts stderr.gsub(/(?<=\n|\A)/, "--! ") unless stderr.empty?
+      end
 
       unless status.success?
         error_string = Shellwords.join(command)
