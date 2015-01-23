@@ -63,6 +63,17 @@ security: SecKeychainSearchCopyNext: The specified item could not be found in th
     end
   end
 
+  specify ".list" do
+    stub_command "security list-keychains", stdout: <<-STDOUT
+  "/Users/dev/Library/Keychains/login.keychain"
+  "/Users/dev/Library/Keychains/projects.keychain"
+  "/Users/dev/Library/Keychains/developer.keychain"
+  "/Library/Keychains/System.keychain"
+    STDOUT
+
+    expect(Mellon::Keychain.list.map(&:name)).to contain_exactly("login", "projects", "developer", "System")
+  end
+
   specify ".default" do
     stub_command "security default-keychain", stdout: <<-STDOUT
       "/Users/dev/Library/Keychains/login.keychain"
