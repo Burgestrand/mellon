@@ -26,13 +26,14 @@ module Mellon
       def find(name)
         quoted = Regexp.quote(name)
         regexp = Regexp.new(quoted, Regexp::IGNORECASE)
+        keychains = list
 
-        keychain = list.find do |keychain|
+        keychain = keychains.find do |keychain|
           keychain.path =~ regexp
         end
 
         if keychain.nil?
-          raise KeyError, "Could not find keychain “#{name}” in #{list.map(&:name).join(", ")}"
+          raise KeyError, "Could not find keychain “#{name}” in #{keychains.map(&:name).join(", ")}"
         end
 
         keychain
