@@ -17,14 +17,14 @@ RSpec.configure do |config|
   end
 
   config.include(Module.new do
-    def stub_command(command, stdout: "", stderr: "", status: 0)
-      expect(Mellon::Utils).to receive(:sh).with(*command.split(" ")) { |&block|
-        if block
-          block[stdout, stderr]
-        else
-          stdout
-        end
-      }
+    def stub_command(command, stdout: "", stderr: "", error: false)
+      status = if error
+        double("success?" => false)
+      else
+        double("success?" => true)
+      end
+
+      expect(Open3).to receive(:capture3).with(*command.split(" ")).and_return([stdout, stderr, status])
     end
   end)
 end

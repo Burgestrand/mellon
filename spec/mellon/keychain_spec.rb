@@ -3,6 +3,45 @@ describe Mellon::Keychain do
     Mellon::Keychain.new(keychain_path)
   end
 
+  describe ".search" do
+    it "returns the first keychain that contains the requested entry" do
+      stub_command "security find-generic-password -l booboom", stdout: <<-STDOUT
+keychain: "/Users/dev/Library/Keychains/projects.keychain"
+class: "genp"
+attributes:
+    0x00000007 <blob>="booboom"
+    0x00000008 <blob>=<NULL>
+    "acct"<blob>=<NULL>
+    "cdat"<timedate>=0x32303135303132333037343035395A00  "20150123074059Z\000"
+    "crtr"<uint32>=<NULL>
+    "cusi"<sint32>=<NULL>
+    "desc"<blob>="secure note"
+    "gena"<blob>=<NULL>
+    "icmt"<blob>=<NULL>
+    "invi"<sint32>=<NULL>
+    "mdat"<timedate>=0x32303135303132333037343035395A00  "20150123074059Z\000"
+    "nega"<sint32>=<NULL>
+    "prot"<blob>=<NULL>
+    "scrp"<sint32>=<NULL>
+    "svce"<blob>="booboom"
+    "type"<uint32>="note"
+      STDOUT
+
+      keychain = Mellon::Keychain.search "booboom"
+      expect(keychain.path).to eq "/Users/dev/Library/Keychains/projects.keychain"
+      expect(keychain.name).to eq "projects"
+    end
+
+    it "returns nil if the entry is missing" do
+      stub_command "security find-generic-password -l booboom", error: true, stderr: <<-STDERR
+security: SecKeychainSearchCopyNext: The specified item could not be found in the keychain.
+      STDERR
+
+      keychain = Mellon::Keychain.search "booboom"
+      expect(keychain).to eq nil
+    end
+  end
+
   specify ".default" do
     stub_command "security default-keychain", stdout: <<-STDOUT
       "/Users/dev/Library/Keychains/login.keychain"
