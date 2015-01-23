@@ -29,7 +29,7 @@ module Mellon
         keychains = list
 
         keychain = keychains.find do |keychain|
-          keychain.path =~ regexp
+          keychain.name =~ regexp
         end
 
         if keychain.nil?

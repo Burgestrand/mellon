@@ -47,15 +47,15 @@ security: SecKeychainSearchCopyNext: The specified item could not be found in th
       stub_command "security list-keychains", stdout: <<-STDOUT
     "/Users/dev/Library/Keychains/login.keychain"
     "/Users/dev/Library/Keychains/projects.keychain"
-    "/Users/dev/Library/Keychains/booboom.keychain"
+    "/Users/dev/Library/Keychains/developer.keychain"
     "/Library/Keychains/System.keychain"
       STDOUT
     end
 
     it "finds a keychain matching the given name" do
-      keychain = Mellon::Keychain.find("boo")
-      expect(keychain.name).to eq "booboom"
-      expect(keychain.path).to eq "/Users/dev/Library/Keychains/booboom.keychain"
+      keychain = Mellon::Keychain.find("dev")
+      expect(keychain.name).to eq "developer"
+      expect(keychain.path).to eq "/Users/dev/Library/Keychains/developer.keychain"
     end
 
     it "raises an error if no keychain was found" do
