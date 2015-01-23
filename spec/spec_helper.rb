@@ -6,14 +6,6 @@ keychain_path = File.expand_path("./temporary_keychain.keychain", __dir__)
 original_keychain_path = File.expand_path("./keychain.keychain", __dir__)
 
 RSpec.configure do |config|
-  config.expect_with :rspec do |c|
-    c.syntax = [:expect, :should]
-  end
-
-  config.mock_with :rspec do |c|
-    c.syntax = :should
-  end
-
   config.around do |example|
     FileUtils.cp(original_keychain_path, keychain_path)
     example.run
