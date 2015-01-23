@@ -1,6 +1,13 @@
 [HEAD][]
 --------
 
+[v1.2.0][]
+----------
+
+- Add Mellon::Store#to_h (47523c2f)
+- Add more verbosity when $DEBUG is set (29b97367)
+- Match only keychain name in Keychain.find (44693409) [closes #5]
+
 [v1.1.1][]
 ----------
 
@@ -21,7 +28,8 @@
 
 Initial release!
 
-[HEAD]: https://github.com/elabs/mellon/compare/v1.1.1...HEAD
+[HEAD]: https://github.com/elabs/mellon/compare/v1.2.0...HEAD
+[v1.2.0]: https://github.com/elabs/mellon/compare/v1.1.1...v1.2.0
 [v1.1.1]: https://github.com/elabs/mellon/compare/v1.1.0...v1.1.1
 [v1.1.0]: https://github.com/elabs/mellon/compare/v1.0.0...v1.1.0
 [v1.0.0]: https://github.com/elabs/mellon/compare/24b83977d...v1.0.0
