@@ -15,4 +15,16 @@ RSpec.configure do |config|
   define_method :keychain_path do
     keychain_path
   end
+
+  config.include(Module.new do
+    def stub_command(command, stdout: "", stderr: "", status: 0)
+      expect(Mellon::Utils).to receive(:sh).with(*command.split(" ")) { |&block|
+        if block
+          block[stdout, stderr]
+        else
+          stdout
+        end
+      }
+    end
+  end)
 end

@@ -3,6 +3,16 @@ describe Mellon::Keychain do
     Mellon::Keychain.new(keychain_path)
   end
 
+  specify ".default" do
+    stub_command "security default-keychain", stdout: <<-STDOUT
+      "/Users/dev/Library/Keychains/login.keychain"
+    STDOUT
+
+    default = Mellon::Keychain.default
+    expect(default.path).to eq "/Users/dev/Library/Keychains/login.keychain"
+    expect(default.name).to eq "login"
+  end
+
   specify "#name" do
     expect(keychain.name).to eq "temporary_keychain"
   end
